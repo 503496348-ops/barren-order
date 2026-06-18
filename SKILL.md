@@ -1,6 +1,6 @@
 ---
-name: feishu-multi-agent-relay
-description: 飞书多Agent跨实例协作协议 — 让多个Hermes Bot在同一个飞书群内互相@通信，实现主持者/执行者分工模式。开箱即用，配置模板分离设计。
+name: barren-order
+description: 荒原序列 · BarrenOrder — 让多个Hermes Bot在同一个飞书群内互相@通信，实现主持者/执行者分工模式。开箱即用，配置模板分离设计。
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -10,7 +10,7 @@ metadata:
     related_skills: [feishu-bot-at-format]
 ---
 
-# 飞书多Agent跨实例协作协议
+# 荒原序列 · BarrenOrder
 
 ## 这是什么
 
@@ -65,7 +65,7 @@ python scripts/validate_config.py
 ## 目录结构
 
 ```
-feishu-multi-agent-relay/
+barren-order/
 ├── SKILL.md                      # 本文件（通用逻辑）
 ├── references/
 │   ├── 配置模板.md                 # ⚡ 用户填写自己的ID（必须）

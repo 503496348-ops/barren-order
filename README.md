@@ -1,4 +1,4 @@
-# 飞书多Agent跨实例协作协议
+# 荒原序列 · BarrenOrder
 
 让两个或多个Hermes Bot在同一个飞书群内通过互相@实现协作的完整解决方案。
 
@@ -14,7 +14,7 @@
 
 克隆本仓库到本地：
 ```bash
-git clone https://github.com/503496348-ops/feishu-multi-agent-relay.git
+git clone https://github.com/503496348-ops/barren-order.git
 ```
 
 ### 2. 配置
@@ -40,7 +40,7 @@ python scripts/validate_config.py
 ## 目录结构
 
 ```
-feishu-multi-agent-relay/
+barren-order/
 ├── SKILL.md                      # 通用逻辑（Hermes技能文件）
 ├── references/
 │   ├── 配置模板.md                 # ⚡ 用户填写自己的ID
