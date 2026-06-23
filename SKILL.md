@@ -197,3 +197,23 @@ barren-order/
 - `SharedMemory` — 核心记忆存储
 - `AgentContextBuilder` — Agent上下文组装器
 - `MemoryScope` — 作用域枚举
+
+
+---
+
+## 工作流
+
+- [ ] 1. 确认用户需求和协作场景
+- [ ] 2. 配置Bot身份和飞书群权限
+- [ ] 3. 编排协作工作流（主持者→执行者）
+- [ ] 4. 启动任务并监控执行状态
+- [ ] 5. 验证输出结果
+
+---
+
+## 技术架构
+
+- **通信层**: 飞书@mention消息解析与路由，支持Bot-to-Bot直接对话
+- **任务调度**: DAG工作流引擎（WorkflowBuilder/WorkflowExecutor），支持条件分支和并行
+- **状态管理**: 四级作用域记忆系统（GLOBAL/AGENT/SESSION/WORKFLOW），TTL过期+快照恢复
+- **错误处理**: max_retries + retry_delay重试，降级策略，人工介入兜底
