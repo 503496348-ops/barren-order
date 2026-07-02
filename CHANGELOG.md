@@ -22,3 +22,7 @@ This repository follows a lightweight Keep-a-Changelog style and semantic versio
 - Added `TeamExperienceStore` with pinned core, on-demand recall, and unpinned-first eviction.
 - Added PID/cmdline/heartbeat/agent-probe health verification in `scripts/watchdog.py`.
 - Added unittest coverage for routing, approval gates, team experience, and watchdog health.
+## 2026-07-02 融合增强
+
+- 荒原序列新增阶段证据 manifest：每个 passed 阶段必须带 artifact 与 verifier，防止无证据推进。
+

@@ -281,3 +281,7 @@ barren-order/
 - **任务调度**: DAG工作流引擎（WorkflowBuilder/WorkflowExecutor），支持条件分支和并行
 - **状态管理**: 四级作用域记忆系统（GLOBAL/AGENT/SESSION/WORKFLOW），TTL过期+快照恢复
 - **错误处理**: max_retries + retry_delay重试，降级策略，人工介入兜底
+## 2026-07-02 融合增强
+
+- 荒原序列新增阶段证据 manifest：每个 passed 阶段必须带 artifact 与 verifier，防止无证据推进。
+
