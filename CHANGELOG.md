@@ -8,6 +8,11 @@ This repository follows a lightweight Keep-a-Changelog style and semantic versio
 
 - Governance baseline initialized.
 
+## v1.5.0 — Agent team bridge runtime
+
+- Added `scripts/team_bridge_runtime.py` with zero-LLM delivery plans for manager inbox ingress, worker pane injection, stable drop reasons, and token-safe Codex device-auth recovery.
+- Added `tests/test_team_bridge_runtime.py` covering manager ingress, capability delegation, dedup/cross-team drops, and `/login codex <agent>` plan safety.
+
 ## 1.3.0 - Standing team runtime command surface
 
 - Added team runtime command-surface reference for manager-only ingress, worker evidence return, slash commands, deduplication, visibility filters, and approval gates.

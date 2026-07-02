@@ -6,6 +6,10 @@
 
 BarrenOrder now includes a standing-team runtime command-surface specification: manager-only ingress, worker evidence return, slash-command operations, message deduplication, visibility filters, approval gates, and health verification. See `references/team-runtime-command-surface.md`.
 
+## Agent Team Bridge Runtime
+
+`scripts/team_bridge_runtime.py` adds a zero-LLM delivery planner for standing teams: human messages become manager inbox writes, manager delegation becomes worker pane injection, duplicates/cross-team events are dropped with stable reason codes, and `/login codex <agent>` produces a token-safe device-auth recovery plan with isolated `CODEX_HOME`.
+
 ## 概述
 
 荒原序列是一个多Agent协作框架，支持：
@@ -38,6 +42,7 @@ barren-order start --bots bot-a,bot-b --mode coordinator-executor
 
 - **通信层**: 飞书@mention消息解析与路由，支持Bot-to-Bot直接对话
 - **运行时路由**: `RoutingDecision` 输出稳定 reason code，支持 manager-only 入口、worker→manager 回报、去重、自循环/跨团队拦截
+- **团队桥接计划**: `BridgeRuntime` 输出 inbox writes、pane injections、ops command 和稳定 drop reason，支持 Codex device-auth 登录恢复
 - **任务调度**: DAG工作流引擎（WorkflowBuilder/WorkflowExecutor），支持条件分支和并行
 - **intent状态机**: 原始意图不可变，`需审批` 硬暂停，终态任务不可复活
 - **状态管理**: 四级作用域记忆系统（GLOBAL/AGENT/SESSION/WORKFLOW），TTL过期+快照恢复；团队经验池支持 pinned core + 按需召回
@@ -126,3 +131,9 @@ AtomCollide-智械工坊团队出品。更多产品见：[AtomCollide Product Ma
 BarrenOrder 新增 `scripts/pre_meeting_taskflow.py`：主持者可把人物会前调研拆成自述线、旁观线、事件线、业务线四个 manager-only worker 任务。证据包必须覆盖四线且无阻塞，才进入最终会前简报。
 
 验证：`python3 -m pytest tests/test_pre_meeting_taskflow.py -v`
+
+## Agent Team Bridge Runtime
+
+新增 `scripts/team_bridge_runtime.py`：把团队消息规划为 `DELIVER/DROP/OPS`，保证主持者入口、worker pane 注入、重复消息去重、跨团队拦截与 `/login codex` 认证恢复都可被单元测试锁死。
+
+验证：`python3 -m pytest tests/test_team_bridge_runtime.py -q`

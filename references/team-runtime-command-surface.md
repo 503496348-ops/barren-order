@@ -23,6 +23,7 @@ BarrenOrder extends its group-chat coordination model with a runtime command sur
 | `/task reject` | Send task to rework or cancel. | Feedback is attached; terminal states cannot resurrect. |
 | `/tmux` | Inspect an agent pane or latest transcript. | Output is read-only and redacted. |
 | `/usage` | Summarize CLI/provider usage when available. | Missing data reports as unknown, not zero. |
+| `/login codex <agent>` | Start device-auth recovery for one worker without using an LLM or worker pane. | Router runs the CLI command with isolated credential home and only shows verification URL/device code, never raw credentials. |
 
 ## Event Routing State Machine
 
@@ -37,6 +38,16 @@ raw event
   → deliver with wake/probe check
 ```
 
+## Bridge Runtime Plan Contract
+
+`scripts/team_bridge_runtime.py` expresses the bridge as a deterministic plan:
+
+- `DELIVER`: includes `targets`, `inbox_writes`, and optional `pane_injections`.
+- `DROP`: includes a stable `reason` suitable for dashboards and regression tests.
+- `OPS`: includes `ops_command`, `ops_env`, `targets`, and redacted user-visible guidance.
+
+The important invariant is separation: human ingress writes to the manager inbox; worker pane injection only happens after manager delegation or explicit internal targeting.
+
 ## Acceptance Evidence
 
 A runtime enhancement is not complete until these are true:
@@ -45,3 +56,4 @@ A runtime enhancement is not complete until these are true:
 - Task tests cover create, pause, approve, reject, terminal freeze, suspended-state guard.
 - Health tests cover stale PID, cmdline mismatch, missing heartbeat, stale heartbeat, and live agent probe.
 - A runbook explains how to recover a stuck router without losing pending events.
+- `/login codex <agent>` tests prove the recovery path is router-owned, uses isolated `CODEX_HOME`, and never surfaces token/secret strings.

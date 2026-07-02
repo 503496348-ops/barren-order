@@ -1,7 +1,7 @@
 ---
 name: barren-order
 description: "飞书群多Bot协作引擎。主从分工·@通信协议·任务编排·共享记忆。当需要配置多Bot协作、编排复杂任务、实现Bot间通信时使用。"
-version: 1.4.0
+version: 1.5.0
 author: 工坊
 license: MIT
 metadata:
@@ -34,6 +34,17 @@ triggers:
 - **Approval gate**：高风险任务必须暂停等待确认，终态任务不可复活。
 
 执行细则见 `references/team-runtime-command-surface.md`。
+
+## Agent Team Bridge Runtime（v1.5.0）
+
+荒原序列新增 `scripts/team_bridge_runtime.py`，把飞书群/团队消息转成**可审计、零 LLM 的交付计划**：
+
+- **Manager ingress plan**：人类消息只写入主持者 inbox，不直接注入 worker pane。
+- **Worker pane delivery**：主持者委派时按 capability 选择 worker，并显式标注 pane injection 目标。
+- **Stable drop reasons**：`dedup/cross_team/unknown_target/unsupported_login/missing_cred_home` 等原因可被日报和告警统计。
+- **Codex device-auth recovery**：`/login codex <agent>` 生成 router 执行计划：`codex login --device-auth` + 隔离 `CODEX_HOME`，用户可见信息不含 token/secret。
+
+验证：`python3 -m pytest tests/test_team_bridge_runtime.py -q`
 
 ## 这是什么
 
@@ -99,6 +110,7 @@ barren-order/
     ├── task_state.py               # intent锚定 + 审批状态机
     ├── shared_memory.py            # 共享记忆 + 团队经验池
     ├── watchdog.py                 # PID/cmdline/heartbeat/agent状态健康验证
+    ├── team_bridge_runtime.py      # 飞书/群聊事件→inbox/pane/ops 的零LLM交付计划
     └── validate_config.py          # 配置校验脚本
 ```
 
