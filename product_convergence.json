@@ -1,0 +1,16 @@
+{
+  "repo": "barren-order",
+  "entrypoints": [],
+  "smoke_targets": [
+    "scripts/product_convergence_gate.py",
+    "scripts/stage_gate_manifest.py",
+    "scripts/validate_config.py"
+  ],
+  "known_external_reference_files": [
+    "modules/crew/README.md",
+    "modules/crew/flow_engine.py",
+    "modules/crew/role_orchestrator.py",
+    "scripts/product_convergence_gate.py"
+  ],
+  "policy": "External/fusion references are allowed only when explicitly reviewed here; new fusion work must add a smoke target or entrypoint wiring."
+}

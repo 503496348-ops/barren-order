@@ -318,3 +318,8 @@ barren-order/
 
 - 新增仓库级 Agent Flow 契约：支持任务输入模板渲染、审批字段校验、未知执行者引用检查。
 - 验证：新增模块通过 py_compile 和定向 pytest，代码不依赖外部服务。
+
+## 2026-07-03 产品收敛门禁
+
+- 新增 `scripts/product_convergence_gate.py`：从远端干净 clone 后可运行 `python3 scripts/product_convergence_gate.py --json`，检查 SKILL/README、入口文件、smoke 目标、测试与外部融合引用是否自洽。
+- 新增 `tests/test_product_convergence_gate.py`：确保门禁在产品仓库中真实可执行，避免后续增强只停留在孤岛模块。
