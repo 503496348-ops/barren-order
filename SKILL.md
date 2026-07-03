@@ -333,3 +333,10 @@ barren-order/
 - `scripts/doctor.py`：检查 README、SKILL、入口脚本、package scripts 与产品收敛门禁。
 - `scripts/smoke.py`：运行 doctor、产品收敛门禁与 Python 编译级冒烟。
 - `tests/test_one_click_open_box.py`：契约测试，防止 README 写了但脚本缺失。
+
+
+## Lark Coding Agent Bridge 融合增强
+
+- 荒原序列新增 Lark Coding Agent Bridge Runtime：chat/topic/comment scope、agent-aware session catalog、workspace policy fingerprint、active-run 去重。
+- 新增模块：`scripts/lark_bridge_runtime.py`
+- 来源模式：飞书/Lark 消息入口、本地 Claude/Codex 执行、会话 fingerprint、profile 隔离与安全门禁。
