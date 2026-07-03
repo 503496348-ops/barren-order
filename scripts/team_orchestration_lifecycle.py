@@ -1,6 +1,6 @@
-"""Generic orchestration lifecycle primitives.
+"""Team orchestration lifecycle primitives for BarrenOrder.
 
-Product-neutral state machine and review-gate helpers for multi-agent work.
+Team task state machine and review-gate helpers for multi-agent work.
 The vocabulary is intentionally generic: no themed roles, no proprietary
 project names, and no UI copy that leaks an external source.
 """

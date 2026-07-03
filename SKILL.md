@@ -338,7 +338,7 @@ barren-order/
 ## Lark Coding Agent Bridge 融合增强
 
 - 荒原序列新增 Lark Coding Agent Bridge Runtime：chat/topic/comment scope、agent-aware session catalog、workspace policy fingerprint、active-run 去重。
-- 新增模块：`scripts/lark_bridge_runtime.py`
+- 新增模块：`scripts/team_chat_bridge_runtime.py`
 - 来源模式：飞书/Lark 消息入口、本地 Claude/Codex 执行、会话 fingerprint、profile 隔离与安全门禁。
 
 ## Generic orchestration lifecycle

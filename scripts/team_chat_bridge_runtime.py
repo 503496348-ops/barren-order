@@ -1,4 +1,4 @@
-"""Lark coding-agent bridge runtime primitives for BarrenOrder.
+"""Team chat bridge runtime primitives for BarrenOrder.
 
 This module distills a verified Lark-to-local-agent runtime pattern into
 small deterministic contracts: chat/topic/comment scopes, workspace bindings,

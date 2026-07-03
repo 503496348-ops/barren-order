@@ -1,4 +1,4 @@
-from scripts.generic_orchestration_lifecycle import WorkItem, allowed, validate_transition_table
+from scripts.team_orchestration_lifecycle import WorkItem, allowed, validate_transition_table
 
 
 def test_transition_table_is_consistent():

@@ -1,7 +1,15 @@
 {
   "repo": "barren-order",
-  "entrypoints": [],
+  "entrypoints": [
+    "scripts/message_router.py",
+    "scripts/task_state.py",
+    "scripts/team_bridge_runtime.py",
+    "scripts/workflow_engine.py"
+  ],
   "smoke_targets": [
+    "scripts/team_orchestration_lifecycle.py",
+    "scripts/team_chat_bridge_runtime.py",
+    "scripts/team_bridge_runtime.py",
     "scripts/product_convergence_gate.py",
     "scripts/stage_gate_manifest.py",
     "scripts/validate_config.py"
@@ -12,5 +20,11 @@
     "modules/crew/role_orchestrator.py",
     "scripts/product_convergence_gate.py"
   ],
-  "policy": "External/fusion references are allowed only when explicitly reviewed here; new fusion work must add a smoke target or entrypoint wiring."
+  "policy": "Cross-cutting runtime/bridge/workflow modules must be domain-mapped and referenced by declared entrypoints or smoke targets; generic orphan modules fail the convergence gate.",
+  "domain_mappings": {
+    "scripts/team_orchestration_lifecycle.py": "BarrenOrder standing team orchestration lifecycle and review gates",
+    "scripts/team_chat_bridge_runtime.py": "BarrenOrder team chat bridge runtime scope and active-run policy",
+    "scripts/team_bridge_runtime.py": "BarrenOrder standing team bridge runtime planner",
+    "scripts/workflow_engine.py": "BarrenOrder workflow execution engine"
+  }
 }

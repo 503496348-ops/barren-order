@@ -1,6 +1,6 @@
 from pathlib import Path
 import pytest
-from scripts.lark_bridge_runtime import ActiveRunRegistry, BridgeRunPolicy, BridgeScope, BridgeSessionCatalog, WorkspaceBinding
+from scripts.team_chat_bridge_runtime import ActiveRunRegistry, BridgeRunPolicy, BridgeScope, BridgeSessionCatalog, WorkspaceBinding
 
 
 def test_topic_scope_and_policy_fingerprint_drive_resume(tmp_path: Path):
