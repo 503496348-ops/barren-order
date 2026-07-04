@@ -1,7 +1,7 @@
 ---
 name: barren-order
 description: "飞书群多Bot协作引擎。主从分工·@通信协议·任务编排·共享记忆。当需要配置多Bot协作、编排复杂任务、实现Bot间通信时使用。"
-version: 1.6.0
+version: 1.7.0
 author: 工坊
 license: MIT
 metadata:
@@ -20,6 +20,10 @@ triggers:
 ---
 
 # 荒原序列 · BarrenOrder
+
+## Repository Flow Templates（v1.7.0）
+
+新增 `scripts/flow_action_templates.py`：把仓库级任务拆成可验证的 action template、entrypoint、reviewer 与输出契约，支持在无 LLM 环境中编译执行计划并提前拦截缺失输入。
 
 
 ## 常驻团队运行时增强（v1.3.0）
