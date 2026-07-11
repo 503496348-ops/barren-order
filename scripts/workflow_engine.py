@@ -47,6 +47,12 @@ class WorkflowStatus(str, enum.Enum):
     CANCELLED = "cancelled"
 
 
+class ExecutionMode(str, enum.Enum):
+    """Execution topology for a workflow."""
+    SEQUENTIAL = "sequential"
+    HIERARCHICAL = "hierarchical"
+
+
 class BranchCondition(str, enum.Enum):
     """Condition operators for conditional branching."""
     EQUALS = "equals"
@@ -118,6 +124,8 @@ class WorkflowDefinition:
     tasks: list[TaskDefinition] = field(default_factory=list)
     metadata: dict = field(default_factory=dict)
     version: str = "1.0.0"
+    execution_mode: ExecutionMode = ExecutionMode.SEQUENTIAL
+    manager_agent_id: Optional[str] = None
 
     def get_task(self, task_id: str) -> Optional[TaskDefinition]:
         for t in self.tasks:
@@ -126,8 +134,15 @@ class WorkflowDefinition:
         return None
 
     def validate(self) -> list[str]:
-        """Validate the DAG — return list of errors (empty = valid)."""
+        """Validate the DAG and manager contract — return errors (empty = valid)."""
         errors = []
+        try:
+            mode = ExecutionMode(self.execution_mode)
+        except ValueError:
+            errors.append(f"Unknown execution_mode '{self.execution_mode}'")
+            mode = ExecutionMode.SEQUENTIAL
+        if mode == ExecutionMode.HIERARCHICAL and not self.manager_agent_id:
+            errors.append("Hierarchical workflow requires manager_agent_id")
         task_ids = {t.task_id for t in self.tasks}
 
         for t in self.tasks:
@@ -200,6 +215,8 @@ class WorkflowDefinition:
             "name": self.name,
             "description": self.description,
             "version": self.version,
+            "execution_mode": ExecutionMode(self.execution_mode).value,
+            "manager_agent_id": self.manager_agent_id,
             "tasks": [
                 {
                     "task_id": t.task_id,
@@ -245,6 +262,8 @@ class WorkflowDefinition:
             tasks=tasks,
             metadata=data.get("metadata", {}),
             version=data.get("version", "1.0.0"),
+            execution_mode=ExecutionMode(data.get("execution_mode", ExecutionMode.SEQUENTIAL.value)),
+            manager_agent_id=data.get("manager_agent_id"),
         )
 
 
@@ -315,6 +334,16 @@ class WorkflowExecutor:
             context=dict(initial_context or {}),
             started_at=time.time(),
         )
+
+        if self.workflow.execution_mode == ExecutionMode.HIERARCHICAL:
+            try:
+                self._prepare_hierarchical_delegation(run)
+            except Exception as exc:
+                run.status = WorkflowStatus.FAILED
+                run.finished_at = time.time()
+                run.context["manager_error"] = str(exc)
+                self._save_state(run)
+                return run
 
         self._save_state(run)
 
@@ -399,6 +428,33 @@ class WorkflowExecutor:
         return self._execute_task(task_def, run)
 
     # ---- internal ----
+
+    def _prepare_hierarchical_delegation(self, run: WorkflowRun) -> None:
+        """Have the manager create a plan before deterministic worker dispatch.
+
+        The workflow definition remains the execution authority: a manager can
+        provide planning context but cannot inject tasks or widen the declared
+        agent graph at runtime.  This makes delegation auditable and replayable.
+        """
+        manager_id = self.workflow.manager_agent_id
+        if not manager_id:
+            raise ValueError("Hierarchical workflow requires manager_agent_id")
+        task_manifest = [
+            {"task_id": task.task_id, "name": task.name, "agent_id": task.agent_id, "depends_on": task.depends_on}
+            for task in self.workflow.tasks
+        ]
+        manager_prompt = (
+            "Create a concise delegation plan for the declared workflow tasks. "
+            "Do not add tasks or change assignees. Tasks: "
+            + json.dumps(task_manifest, ensure_ascii=False)
+        )
+        plan, error = self.dispatch_fn(manager_id, manager_prompt, ["plan", "delegate"], run.context)
+        if error:
+            raise RuntimeError(f"Manager planning failed: {error}")
+        run.context["manager_plan"] = plan
+        run.context["delegated_by"] = {
+            task.task_id: manager_id for task in self.workflow.tasks if task.agent_id and task.agent_id != manager_id
+        }
 
     def _get_entry_tasks(self) -> list[str]:
         """Tasks with no dependencies."""
@@ -589,6 +645,12 @@ class WorkflowBuilder:
             condition_value=condition_value,
             metadata=metadata,
         ))
+        return self
+
+    def hierarchical(self, manager_agent_id: str) -> "WorkflowBuilder":
+        """Run declared tasks under a manager-led, auditable delegation plan."""
+        self._wf.execution_mode = ExecutionMode.HIERARCHICAL
+        self._wf.manager_agent_id = manager_agent_id
         return self
 
     def build(self) -> WorkflowDefinition:
