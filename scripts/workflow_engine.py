@@ -53,6 +53,20 @@ class ExecutionMode(str, enum.Enum):
     HIERARCHICAL = "hierarchical"
 
 
+class TaskLifecycleEvent(str, enum.Enum):
+    """Events emitted during task execution lifecycle.
+
+    Inspired by crewAI's TaskStartedEvent / TaskCompletedEvent / TaskFailedEvent.
+    WorkflowExecutor fires these through the ``on_task_lifecycle`` callback so
+    that external observers can log, alert, or intervene without modifying the
+    engine itself.
+    """
+    STARTED = "started"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    RETRYING = "retrying"
+
+
 class BranchCondition(str, enum.Enum):
     """Condition operators for conditional branching."""
     EQUALS = "equals"
@@ -298,6 +312,11 @@ class WorkflowRun:
 # Signature: (agent_id, prompt, keywords, context) -> (output, error)
 AgentDispatchFn = Callable[[Optional[str], str, list[str], dict], tuple[Any, Optional[str]]]
 
+# Type alias for task lifecycle callbacks (crewAI-inspired execution hooks)
+# Signature: (event, task_id, task_name, result) -> None
+# ``result`` is None on STARTED, a TaskResult on SUCCEEDED/FAILED/RETRYING.
+TaskLifecycleCallback = Callable[[TaskLifecycleEvent, str, str, Optional["TaskResult"]], None]
+
 
 class WorkflowExecutor:
     """
@@ -314,6 +333,7 @@ class WorkflowExecutor:
         workflow: WorkflowDefinition,
         dispatch_fn: Optional[AgentDispatchFn] = None,
         state_path: Optional[Path] = None,
+        on_task_lifecycle: Optional[TaskLifecycleCallback] = None,
     ):
         errors = workflow.validate()
         if errors:
@@ -322,6 +342,24 @@ class WorkflowExecutor:
         self.workflow = workflow
         self.dispatch_fn = dispatch_fn or self._default_dispatch
         self.state_path = state_path
+        self._on_task_lifecycle = on_task_lifecycle
+
+    # ---- lifecycle helpers ----
+
+    def _fire(
+        self,
+        event: TaskLifecycleEvent,
+        task_id: str,
+        task_name: str,
+        result: Optional[TaskResult] = None,
+    ) -> None:
+        """Fire a lifecycle callback if one is registered."""
+        if self._on_task_lifecycle:
+            try:
+                self._on_task_lifecycle(event, task_id, task_name, result)
+            except Exception:
+                # Lifecycle callbacks are observers — never break execution.
+                pass
 
     # ---- public API ----
 
@@ -472,7 +510,7 @@ class WorkflowExecutor:
         return results
 
     def _execute_task(self, task: TaskDefinition, run: WorkflowRun) -> TaskResult:
-        """Execute a single task with retry logic."""
+        """Execute a single task with retry logic and lifecycle hooks."""
         result = TaskResult(task_id=task.task_id, status=TaskStatus.RUNNING, started_at=time.time())
 
         # Evaluate condition if present
@@ -482,6 +520,9 @@ class WorkflowExecutor:
                 result.output = "Condition not met"
                 result.finished_at = time.time()
                 return result
+
+        # --- lifecycle: task started ---
+        self._fire(TaskLifecycleEvent.STARTED, task.task_id, task.name, None)
 
         # Resolve prompt with context interpolation
         resolved_prompt = self._interpolate(task.prompt, run.context)
@@ -503,6 +544,8 @@ class WorkflowExecutor:
                     last_error = error
                     result.status = TaskStatus.RETRYING
                     result.error = error
+                    # --- lifecycle: retrying ---
+                    self._fire(TaskLifecycleEvent.RETRYING, task.task_id, task.name, result)
                     if attempt < task.max_retries:
                         time.sleep(task.retry_delay)
                         continue
@@ -512,12 +555,16 @@ class WorkflowExecutor:
                     result.agent_id = task.agent_id
                     # Store output in shared context
                     run.context[f"task_{task.task_id}_output"] = output
+                    # --- lifecycle: succeeded ---
+                    self._fire(TaskLifecycleEvent.SUCCEEDED, task.task_id, task.name, result)
                     break
 
             except Exception as e:
                 last_error = str(e)
                 result.status = TaskStatus.RETRYING
                 result.error = last_error
+                # --- lifecycle: retrying ---
+                self._fire(TaskLifecycleEvent.RETRYING, task.task_id, task.name, result)
                 if attempt < task.max_retries:
                     time.sleep(task.retry_delay)
                     continue
@@ -527,6 +574,11 @@ class WorkflowExecutor:
             result.error = f"All {task.max_retries} attempts failed. Last error: {last_error}"
 
         result.finished_at = time.time()
+
+        # --- lifecycle: failed (only when actually failed) ---
+        if result.status == TaskStatus.FAILED:
+            self._fire(TaskLifecycleEvent.FAILED, task.task_id, task.name, result)
+
         return result
 
     def _evaluate_condition(self, task: TaskDefinition, run: WorkflowRun) -> bool:
