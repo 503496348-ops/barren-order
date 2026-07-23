@@ -371,9 +371,9 @@ class MessageRouter:
 
 if __name__ == "__main__":
     MessageRouter.reset()
-    MessageRouter.configure_team(team_id="demo", default_manager_id="老6")
+    MessageRouter.configure_team(team_id="demo", default_manager_id="agent-a")
     MessageRouter.register_agent(AgentCard(
-        agent_id="老6", name="丞相老六", capabilities=["通用", "飞书", "代码", "分析"],
+        agent_id="agent-a", name="General Agent A", capabilities=["通用", "飞书", "代码", "分析"],
         priority=10, role=AgentRole.MANAGER, team_id="demo",
     ))
     MessageRouter.register_agent(AgentCard(
@@ -381,7 +381,7 @@ if __name__ == "__main__":
         role=AgentRole.WORKER, team_id="demo",
     ))
     MessageRouter.register_agent(AgentCard(
-        agent_id="林小黑", name="林小黑", capabilities=["运营", "排期", "数据"], priority=7,
+        agent_id="agent-b", name="Ops Agent B", capabilities=["运营", "排期", "数据"], priority=7,
         role=AgentRole.WORKER, team_id="demo",
     ))
 
