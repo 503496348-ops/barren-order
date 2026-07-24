@@ -1,14 +1,10 @@
 ---
 name: barren-order
 description: "飞书群多Bot协作引擎。主从分工·@通信协议·任务编排·共享记忆。当需要配置多Bot协作、编排复杂任务、实现Bot间通信时使用。"
-version: 1.7.0
-author: 工坊
 license: MIT
 metadata:
-  hermes:
-    tags: [飞书, 多Agent, 跨实例, 协作协议, Bot通信, 常驻团队, 运行时路由]
-    related_skills: [feishu-bot-at-format]
-
+  author: 工坊
+  version: 1.7.0
 triggers:
   - 多Agent协作
   - 任务编排
