@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
 
-def main():
+def main() -> None:
     """Show barren-order product info and available modules."""
     info = {
         "product": "barren-order",
