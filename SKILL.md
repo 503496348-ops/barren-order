@@ -5,17 +5,19 @@ license: MIT
 metadata:
   author: 工坊
   version: 1.7.0
-triggers:
-  - 多Agent协作
-  - 任务编排
-  - DAG工作流
-  - barren-order
-  - 荒原序列
-  - 会前情报
-  - 人物调研
 ---
 
 # 荒原序列 · BarrenOrder
+
+## 触发条件
+
+- 多Agent协作
+- 任务编排
+- DAG工作流
+- barren-order
+- 荒原序列
+- 会前情报
+- 人物调研
 
 ## Repository Flow Templates（v1.7.0）
 
